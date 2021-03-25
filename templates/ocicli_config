@@ -1,0 +1,6 @@
+[DEFAULT]
+user=${user_ocid}
+fingerprint=${fingerprint}
+key_file=/home/opc/.oci/oci_api_key.pem
+tenancy=${tenancy_ocid}
+region=${region}
