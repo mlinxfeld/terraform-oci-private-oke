@@ -1,8 +1,11 @@
 output "FoggyKitchenOKECluster" {
   value = {
-    id                 = oci_containerengine_cluster.FoggyKitchenOKECluster.id
-    kubernetes_version = oci_containerengine_cluster.FoggyKitchenOKECluster.kubernetes_version
-    name               = oci_containerengine_cluster.FoggyKitchenOKECluster.name
+    id                  = oci_containerengine_cluster.FoggyKitchenOKECluster.id
+    kubernetes_version  = oci_containerengine_cluster.FoggyKitchenOKECluster.kubernetes_version
+    name                = oci_containerengine_cluster.FoggyKitchenOKECluster.name
+    endpoint_subnet     = oci_containerengine_cluster.FoggyKitchenOKECluster.endpoint_config[0].subnet_id
+    loadbalancer_subnet = oci_containerengine_cluster.FoggyKitchenOKECluster.options[0].service_lb_subnet_ids
+    endpoints           = oci_containerengine_cluster.FoggyKitchenOKECluster.endpoints
   }
 }
 

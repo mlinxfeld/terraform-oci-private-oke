@@ -4,11 +4,17 @@
 
 In this repository, I have documented my hands on experience with Terrafrom for the purpose of Container Engine for Kubernetes (aka OCI OKE) deployment in private subnets. This set of HCL based Terraform files which can customized according to any requirements.  
 
+## Topology Diagram 
+
+With the usage of this example HCL code you can build topology documented by diagram below. This topology is extremly simplified for education purposes and rather cannot be used for production implementations. 
+
+![](terraform-oci-private-oke.png)
+
 ## How to use code 
 
 ### STEP 1.
 
-Clone the repo from github by executing the command as follows and then go to terraform-oci-private-oke directory:
+Clone the repo from GitHub.com by executing the command as follows and then go to terraform-oci-private-oke directory:
 
 ```
 [opc@terraform-server ~]$ git clone https://github.com/mlinxfeld/terraform-oci-private-oke.git
@@ -48,10 +54,10 @@ Within web browser go to URL: https://www.terraform.io/downloads.html. Find your
 
 [opc@terraform-server terraform-oci-private-oke]$ terraform --version
 
-Terraform v0.12.16
+Terraform v0.14.7
 
 Your version of Terraform is out of date! The latest version
-is 0.12.17. You can update by downloading from https://www.terraform.io/downloads.html
+is 0.14.9. You can update by downloading from https://www.terraform.io/downloads.htmll
 ```
 
 ### STEP 3. 
@@ -75,17 +81,23 @@ export TF_VAR_public_key_oci="/tmp/id_rsa.pub"
 Run *terraform init* with upgrade option just to download the lastest neccesary providers:
 
 ```
-[opc@terraform-server terraform-oci-private-oke]$ terraform init -upgrade
+[opc@terraform-server terraform-oci-private-oke]$ terraform init 
 
 Initializing the backend...
 
 Initializing provider plugins...
-- Finding latest version of hashicorp/local...
 - Finding latest version of hashicorp/oci...
-- Installing hashicorp/oci v4.18.0...
-- Installed hashicorp/oci v4.18.0 (signed by HashiCorp)
+- Finding latest version of hashicorp/local...
+- Finding latest version of hashicorp/null...
+- Finding latest version of hashicorp/template...
+- Installing hashicorp/template v2.2.0...
+- Installed hashicorp/template v2.2.0 (signed by HashiCorp)
+- Installing hashicorp/oci v4.19.0...
+- Installed hashicorp/oci v4.19.0 (signed by HashiCorp)
 - Installing hashicorp/local v2.1.0...
 - Installed hashicorp/local v2.1.0 (signed by HashiCorp)
+- Installing hashicorp/null v3.1.0...
+- Installed hashicorp/null v3.1.0 (signed by HashiCorp)
 
 Terraform has created a lock file .terraform.lock.hcl to record the provider
 selections it made above. Include this file in your version control repository

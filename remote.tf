@@ -29,6 +29,7 @@ resource "null_resource" "FoggyKitchenBastionServer_ConfigMgmt" {
 
       "echo '== 2. Install OCI CLI'",
       "sudo -u root yum install -y python36-oci-cli",
+      "rm -rf /home/opc/.oci",
       "mkdir /home/opc/.oci/",
       ]
   }

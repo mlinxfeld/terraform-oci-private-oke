@@ -19,16 +19,20 @@ variable "cluster_options_kubernetes_network_config_services_cidr" {
   default = "10.2.0.0/16"
 }
 
-variable "FoggyKitchenClusterSubnet-CIDR" {
+variable "FoggyKitchenBastionSubnet-CIDR" {
   default = "10.0.1.0/24"
 }
 
-variable "FoggyKitchenBastionSubnet-CIDR" {
+variable "FoggyKitchenK8SAPIEndPointSubnet-CIDR" {
   default = "10.0.2.0/24"
 }
 
-variable "FoggyKitchenNodePoolSubnet-CIDR" {
+variable "FoggyKitchenK8SLBSubnet-CIDR" {
   default = "10.0.3.0/24"
+}
+
+variable "FoggyKitchenK8SNodePoolSubnet-CIDR" {
+  default = "10.0.4.0/24"
 }
 
 variable "node_pool_quantity_per_subnet" {
@@ -36,7 +40,6 @@ variable "node_pool_quantity_per_subnet" {
 }
 
 variable "kubernetes_version" {
-#  default = "v1.14.8"
    default = "v1.19.7"
 }
 

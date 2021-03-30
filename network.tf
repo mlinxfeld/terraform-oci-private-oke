@@ -82,13 +82,13 @@ resource "oci_core_security_list" "FoggyKitchenPrivateKubernetesAPIEndpointSubne
     egress_security_rules {
         protocol          = "6"
         destination_type  = "CIDR_BLOCK"
-        destination       = var.FoggyKitchenNodePoolSubnet-CIDR
+        destination       = var.FoggyKitchenK8SNodePoolSubnet-CIDR
     }
 
     egress_security_rules {
         protocol          = 1
         destination_type  = "CIDR_BLOCK"
-        destination       = var.FoggyKitchenNodePoolSubnet-CIDR
+        destination       = var.FoggyKitchenK8SNodePoolSubnet-CIDR
         
         icmp_options  {
             type = 3
@@ -111,7 +111,7 @@ resource "oci_core_security_list" "FoggyKitchenPrivateKubernetesAPIEndpointSubne
 
     ingress_security_rules {
         protocol = "6"
-        source = var.FoggyKitchenNodePoolSubnet-CIDR
+        source = var.FoggyKitchenK8SNodePoolSubnet-CIDR
         
         tcp_options {
             min = 6443
@@ -121,7 +121,7 @@ resource "oci_core_security_list" "FoggyKitchenPrivateKubernetesAPIEndpointSubne
 
     ingress_security_rules {
         protocol = "6"
-        source = var.FoggyKitchenNodePoolSubnet-CIDR
+        source = var.FoggyKitchenK8SNodePoolSubnet-CIDR
         
         tcp_options {
             min = 12250
@@ -141,7 +141,7 @@ resource "oci_core_security_list" "FoggyKitchenPrivateKubernetesAPIEndpointSubne
 
     ingress_security_rules {
         protocol = 1
-        source = var.FoggyKitchenNodePoolSubnet-CIDR
+        source = var.FoggyKitchenK8SNodePoolSubnet-CIDR
         
         icmp_options  {
             type = 3
@@ -162,7 +162,7 @@ resource "oci_core_security_list" "FoggyKitchenPrivateKubernetesPrivateWorkerNod
     egress_security_rules {
         protocol          = "All"
         destination_type  = "CIDR_BLOCK"
-        destination       = var.FoggyKitchenNodePoolSubnet-CIDR
+        destination       = var.FoggyKitchenK8SNodePoolSubnet-CIDR
     }
 
     egress_security_rules {
@@ -184,7 +184,7 @@ resource "oci_core_security_list" "FoggyKitchenPrivateKubernetesPrivateWorkerNod
     egress_security_rules {
         protocol         = "6"
         destination_type = "CIDR_BLOCK" 
-        destination      = var.FoggyKitchenClusterSubnet-CIDR
+        destination      = var.FoggyKitchenK8SAPIEndPointSubnet-CIDR
 
         tcp_options {
             min = 6443
@@ -195,7 +195,7 @@ resource "oci_core_security_list" "FoggyKitchenPrivateKubernetesPrivateWorkerNod
     egress_security_rules {
         protocol         = "6"
         destination_type = "CIDR_BLOCK" 
-        destination      = var.FoggyKitchenClusterSubnet-CIDR
+        destination      = var.FoggyKitchenK8SAPIEndPointSubnet-CIDR
 
         tcp_options {
             min = 12250
@@ -213,12 +213,12 @@ resource "oci_core_security_list" "FoggyKitchenPrivateKubernetesPrivateWorkerNod
 
     ingress_security_rules {
         protocol = "All"
-        source = var.FoggyKitchenNodePoolSubnet-CIDR
+        source = var.FoggyKitchenK8SNodePoolSubnet-CIDR
     }
 
     ingress_security_rules {
         protocol = "6"
-        source = var.FoggyKitchenClusterSubnet-CIDR
+        source = var.FoggyKitchenK8SAPIEndPointSubnet-CIDR
     }
 
     ingress_security_rules {
@@ -243,23 +243,33 @@ resource "oci_core_security_list" "FoggyKitchenPrivateKubernetesPrivateWorkerNod
 
 }
 
-
-resource "oci_core_subnet" "FoggyKitchenClusterSubnet" {
-  cidr_block          = var.FoggyKitchenClusterSubnet-CIDR
+resource "oci_core_subnet" "FoggyKitchenK8SAPIEndPointSubnet" {
+  cidr_block          = var.FoggyKitchenK8SAPIEndPointSubnet-CIDR
   compartment_id      = oci_identity_compartment.FoggyKitchenCompartment.id
   vcn_id              = oci_core_vcn.FoggyKitchenVCN.id
-  display_name        = "FoggyKitchenClusterSubnet"
+  display_name        = "FoggyKitchenK8SAPIEndPointSubnet"
 
   security_list_ids = [oci_core_vcn.FoggyKitchenVCN.default_security_list_id, oci_core_security_list.FoggyKitchenPrivateKubernetesAPIEndpointSubnetSecurityList.id]
   route_table_id    = oci_core_route_table.FoggyKitchenRouteTableViaNAT.id
   prohibit_public_ip_on_vnic = true
 }
 
-resource "oci_core_subnet" "FoggyKitchenNodePoolSubnet" {
-  cidr_block          = var.FoggyKitchenNodePoolSubnet-CIDR
+resource "oci_core_subnet" "FoggyKitchenK8SLBSubnet" {
+  cidr_block          = var.FoggyKitchenK8SLBSubnet-CIDR
   compartment_id      = oci_identity_compartment.FoggyKitchenCompartment.id
   vcn_id              = oci_core_vcn.FoggyKitchenVCN.id
-  display_name        = "FoggyKitchenNodePoolSubnet"
+  display_name        = "FoggyKitchenK8SLBSubnet"
+
+  security_list_ids = [oci_core_vcn.FoggyKitchenVCN.default_security_list_id]
+  route_table_id    = oci_core_route_table.FoggyKitchenRouteTableViaNAT.id
+  prohibit_public_ip_on_vnic = true
+}
+
+resource "oci_core_subnet" "FoggyKitchenK8SNodePoolSubnet" {
+  cidr_block          = var.FoggyKitchenK8SNodePoolSubnet-CIDR
+  compartment_id      = oci_identity_compartment.FoggyKitchenCompartment.id
+  vcn_id              = oci_core_vcn.FoggyKitchenVCN.id
+  display_name        = "FoggyKitchenK8SNodePoolSubnet"
 
   security_list_ids = [oci_core_vcn.FoggyKitchenVCN.default_security_list_id, oci_core_security_list.FoggyKitchenPrivateKubernetesPrivateWorkerNodesSubnetSecurityList.id]
   route_table_id    = oci_core_route_table.FoggyKitchenRouteTableViaNAT.id

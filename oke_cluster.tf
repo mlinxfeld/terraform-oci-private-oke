@@ -8,11 +8,11 @@ resource "oci_containerengine_cluster" "FoggyKitchenOKECluster" {
 
   endpoint_config {
     is_public_ip_enabled = false
-    subnet_id = oci_core_subnet.FoggyKitchenClusterSubnet.id
+    subnet_id = oci_core_subnet.FoggyKitchenK8SAPIEndPointSubnet.id
   }
 
   options {
-    service_lb_subnet_ids = [oci_core_subnet.FoggyKitchenClusterSubnet.id]
+    service_lb_subnet_ids = [oci_core_subnet.FoggyKitchenK8SLBSubnet.id]
 
     add_ons {
       is_kubernetes_dashboard_enabled = true
@@ -54,7 +54,7 @@ resource "oci_containerengine_node_pool" "FoggyKitchenOKENodePool" {
 
     placement_configs {
       availability_domain = lookup(data.oci_identity_availability_domains.ADs.availability_domains[1], "name")
-      subnet_id           = oci_core_subnet.FoggyKitchenNodePoolSubnet.id
+      subnet_id           = oci_core_subnet.FoggyKitchenK8SNodePoolSubnet.id
     }  
   }
 
