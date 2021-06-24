@@ -1,0 +1,356 @@
+# Copyright (c) 2020, Oracle and/or its affiliates. All rights reserved.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+title: "Terraform Private OCI Container Engine for Kubernetes (aka OCI OKE)"
+description: "FoggyKitchen.com - Terraform Private OCI Container Engine for Kubernetes (aka OCI OKE)."
+stackDescription: "FoggyKitchen.com - Terraform Private OCI Container Engine for Kubernetes (aka OCI OKE)."
+schemaVersion: 1.1.0
+version: "20201028"
+locale: "en"
+
+variableGroups:
+- title: "General Configuration"
+  visible: false
+  variables:
+  - tenancy_ocid
+  - region
+  - instance_os
+  - linux_os_version
+  - oci_service_gateway
+  - cluster_kube_config_token_version
+
+- title: "Required Configuration"
+  visible: true  
+  variables:
+  - compartment_ocid
+  - availablity_domain_name
+  - node_pool_size
+  - show_advanced 
+
+- title: "OKE Optional Configuration"
+  visible: 
+      and:
+        - show_advanced
+  variables:
+  - kubernetes_version
+  - Shape
+  - Flex_shape_memory
+  - Flex_shape_ocpus
+  - ClusterName
+  - node_pool_quantity_per_subnet
+  - cluster_options_kubernetes_network_config_pods_cidr
+  - cluster_options_kubernetes_network_config_services_cidr
+
+- title: "Bastion Optional Configuration"
+  visible: 
+      and:
+        - show_advanced
+  variables:
+  - ssh_public_key
+  - BastionShape
+  - Bastion_flex_shape_memory
+  - Bastion_flex_shape_ocpus
+
+- title: "Networking Optional Configuration"
+  visible: 
+      and:
+        - show_advanced
+  variables:
+  - VCN-CIDR
+  - FoggyKitchenBastionSubnet-CIDR
+  - FoggyKitchenK8SAPIEndPointSubnet-CIDR
+  - FoggyKitchenK8SLBSubnet-CIDR
+  - FoggyKitchenK8SNodePoolSubnet-CIDR
+
+variables:
+
+  show_advanced:
+    type: boolean
+    title: "Show advanced options?"
+    description: "Shows advanced options."
+    visible: true
+    default: false
+
+  # General Configuration
+  tenancy_ocid:
+    title: "Tenancy ID"
+    description: "The Oracle Cloud Identifier (OCID) for your tenancy"
+    type: string
+    required: true
+    visibile: false
+
+  region:
+    title: "Region"
+    description: "Choose Region where you deploy your Webserver"
+    type: oci:identity:region:name
+    required: true
+    visibile: true
+
+  compartment_ocid:
+    title: "Compartment OCID"
+    description: "Choose Comparment where you deploy your Webserver"
+    type: oci:identity:compartment:id
+    required: true
+    visibile: true
+
+  availablity_domain_name:
+    type: oci:identity:availabilitydomain:name
+    required: true
+    visibile: true
+    title: "Availability Domain"
+    description: "Choose Availability Domain where your Webserver1 & Webserver2 will be deployed."
+    dependsOn:
+      regionName: ${region}
+      compartmentId: ${compartment_ocid}
+
+  node_pool_size:
+    type: number
+    required: false
+    minimum: 1
+    maximum: 128
+    multipleOf: 1
+    default: 3
+    title: "How many K8S Nodes?"
+    description: "Choose number of K8S Nodes to be deployed."
+
+  # Optional Configuration
+
+  VCN-CIDR:
+    type: string
+    required: false
+    default: "10.0.0.0/16"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    title: "VCN CIDR"
+    description: "Choose single, contiguous IPv4 CIDR block for the VCN"
+
+  FoggyKitchenBastionSubnet-CIDR:
+    type: string
+    required: false
+    default: "10.0.1.0/24"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    title: "BastionSubnet CIDR"
+    description: "Choose single, contiguous IPv4 CIDR block for the Subnet"
+
+  FoggyKitchenK8SAPIEndPointSubnet-CIDR:
+    type: string
+    required: false
+    default: "10.0.2.0/24"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    title: "K8S API EndPoint Subnet CIDR"
+    description: "Choose single, contiguous IPv4 CIDR block for the Subnet"
+
+  FoggyKitchenK8SLBSubnet-CIDR:
+    type: string
+    required: false
+    default: "10.0.3.0/24"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    title: "K8S LB Subnet CIDR"
+    description: "Choose single, contiguous IPv4 CIDR block for the Subnet"
+
+  FoggyKitchenK8SNodePoolSubnet-CIDR:
+    type: string
+    required: false
+    default: "10.0.4.0/24"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    title: "K8S Node Pool Subnet CIDR"
+    description: "Choose single, contiguous IPv4 CIDR block for the Subnet"
+
+  kubernetes_version:
+    type: enum
+    title: "K8S Version"
+    description: "Choose Kubernetes (K8S) version for OKE"
+    default: "v1.19.7"
+    required: false
+    enum: 
+      - "v1.19.7"
+      - "v1.18.10"
+      - "v1.17.13"
+      - "v1.17.9"
+
+  Shape:
+    type: oci:core:instanceshape:name
+    title: "K8S Nodes Shape"
+    description: "Choose a shape for your K8S nodes"
+    default: "VM.Standard.E3.Flex"
+    required: false
+    dependsOn:
+      compartmentId: ${compartment_ocid}
+
+  Flex_shape_ocpus:
+    type: number
+    required: false
+    minimum: 1
+    maximum: 128
+    multipleOf: 1
+    default: 1
+    title: "K8S Nodes Flex Shape OCPUs"
+    description: "Choose number of OCPUs for Flex Shape."
+    visible:
+      and:
+        - or:
+          - eq:
+            - Shape 
+            - "VM.Standard.E3.Flex"
+          - eq:
+            - Shape 
+            - "VM.Standard.E4.Flex"
+          - eq:
+            - Shape 
+            - "VM.Standard.A1.Flex"
+          - eq:
+            - Shape 
+            - "VM.Optimized3.Flex"
+
+  Flex_shape_memory:
+    type: number
+    required: false
+    minimum: 1
+    maximum: 128
+    multipleOf: 1
+    default: 6
+    title: "K8S Nodes Flex Shape Memory (GB)"
+    description: "Choose number GB for Flex Shape Memory."
+    visible:
+      and:
+        - or:
+          - eq:
+            - Shape 
+            - "VM.Standard.E3.Flex"
+          - eq:
+            - Shape
+            - "VM.Standard.E4.Flex"
+          - eq:
+            - Shape 
+            - "VM.Standard.A1.Flex"
+          - eq:
+            - Shape 
+            - "VM.Optimized3.Flex"
+
+  BastionShape:
+    type: oci:core:instanceshape:name
+    title: "Bastion Shape"
+    description: "Choose a shape for your K8S nodes"
+    default: "VM.Standard.E3.Flex"
+    required: false
+    dependsOn:
+      compartmentId: ${compartment_ocid}
+
+  Bastion_flex_shape_ocpus:
+    type: number
+    required: false
+    minimum: 1
+    maximum: 128
+    multipleOf: 1
+    default: 1
+    title: "Bastion Flex Shape OCPUs"
+    description: "Choose number of OCPUs for Flex Shape."
+    visible:
+      and:
+        - or:
+          - eq:
+            - BastionShape 
+            - "VM.Standard.E3.Flex"
+          - eq:
+            - BastionShape 
+            - "VM.Standard.E4.Flex"
+          - eq:
+            - BastionShape 
+            - "VM.Standard.A1.Flex"
+          - eq:
+            - BastionShape 
+            - "VM.Optimized3.Flex"
+
+  Bastion_flex_shape_memory:
+    type: number
+    required: false
+    minimum: 1
+    maximum: 128
+    multipleOf: 1
+    default: 1
+    title: "Bastion Flex Shape Memory (GB)"
+    description: "Choose number GB for Flex Shape Memory."
+    visible:
+      and:
+        - or:
+          - eq:
+            - BastionShape 
+            - "VM.Standard.E3.Flex"
+          - eq:
+            - BastionShape
+            - "VM.Standard.E4.Flex"
+          - eq:
+            - BastionShape 
+            - "VM.Standard.A1.Flex"
+          - eq:
+            - BastionShape 
+            - "VM.Optimized3.Flex"
+
+  ssh_public_key:
+    type: oci:core:ssh:publickey
+    title: "Public SSH Key"
+    description: "Choose public SSH Key to be uploaded into compute instances."
+    required: false
+
+  ClusterName:
+    type: string
+    title: "K8S Cluster Name"
+    description: "Choose K8S Cluster Name"
+    required: false
+
+  node_pool_quantity_per_subnet:
+    type: number
+    required: false
+    minimum: 1
+    maximum: 128
+    multipleOf: 1
+    default: 2
+    title: "K8S Node Pool Quantity per Subnet"
+    description: "Choose K8S Node Pool Quantity per Subnet."
+
+  cluster_options_kubernetes_network_config_pods_cidr:
+    type: string
+    required: false
+    default: "10.1.0.0/16"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    title: "Cluster Options K8S network config PODs CIDR"
+    description: "Choose single, contiguous IPv4 CIDR block for the VCN"
+
+  cluster_options_kubernetes_network_config_services_cidr:
+    type: string
+    required: false
+    default: "10.2.0.0/16"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    title: "Cluster Options K8S network config services CIDR"
+    description: "Choose single, contiguous IPv4 CIDR block for the VCN"
+
+  instance_os:
+    type: enum
+    required: false
+    visible: true
+    title: "Instance OS"
+    description: "Choose Operating System that determines the operating system for Webserver host."
+    default: "Oracle Linux"
+    enum:
+      - "Oracle Linux"
+
+  linux_os_version:
+    type: enum
+    required: false
+    visible: true
+    title: "Instance OS version"
+    description: "Choose Operating System version that determines the operating system version for Webserver host."
+    default: "7.9"
+    enum:
+      - "7.9"  
+
+outputs:
+
+  generated_ssh_private_key:
+    title: "Generated SSH Private Key"
+    displayText: "Generated SSH Private Key"
+    type: string
+    visible: true
+  
+
+
+

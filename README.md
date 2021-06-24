@@ -8,11 +8,33 @@ In this repository, I have documented my hands on experience with Terrafrom for 
 
 With the usage of this example HCL code you can build topology documented by diagram below. This topology is extremly simplified for education purposes and rather cannot be used for production implementations. 
 
-![](terraform-oci-private-oke.png)
+![](terraform-oci-private-oke.jpg)
 
 ## How to use code 
 
-### STEP 1.
+### Deploy Using Oracle Resource Manager
+
+1. Click [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/mlinxfeld/terraform-oci-private-oke/releases/latest/download/terraform-oci-private-oke-stack-latest.zip)
+
+    If you aren't already signed in, when prompted, enter the tenancy and user credentials.
+
+2. Review and accept the terms and conditions.
+
+3. Select the region where you want to deploy the stack.
+
+4. Follow the on-screen prompts and instructions to create the stack.
+
+5. After creating the stack, click **Terraform Actions**, and select **Plan**.
+
+6. Wait for the job to be completed, and review the plan.
+
+    To make any changes, return to the Stack Details page, click **Edit Stack**, and make the required changes. Then, run the **Plan** action again.
+
+7. If no further changes are necessary, return to the Stack Details page, click **Terraform Actions**, and select **Apply**. 
+
+### Deploy Using the Terraform CLI
+
+#### STEP 1.
 
 Clone the repo from GitHub.com by executing the command as follows and then go to terraform-oci-private-oke directory:
 
@@ -45,7 +67,7 @@ drwxr-xr-x   3 opc opc    96 25 mar 12:15 templates
 -rw-r--r--   1 opc opc  2008 25 mar 12:15 variables.tf
 ```
 
-### STEP 2.
+#### STEP 2.
 
 Within web browser go to URL: https://www.terraform.io/downloads.html. Find your platform and download the latest version of your terraform runtime. Add directory of terraform binary into PATH and check terraform version:
 
@@ -60,7 +82,7 @@ Your version of Terraform is out of date! The latest version
 is 0.14.9. You can update by downloading from https://www.terraform.io/downloads.htmll
 ```
 
-### STEP 3. 
+#### STEP 3. 
 Next create environment file with TF_VARs:
 
 ```
@@ -73,11 +95,12 @@ export TF_VAR_private_key_path="/tmp/oci_api_key.pem"
 export TF_VAR_region="eu-frankfurt-1"
 export TF_VAR_private_key_oci="/tmp/id_rsa"
 export TF_VAR_public_key_oci="/tmp/id_rsa.pub"
+export TF_VAR_availablity_domain_name = "TkCH:EU-FRANKFURT-AD-1"
 
 [opc@terraform-server terraform-oci-private-oke]$ source setup_oci_tf_vars.sh
 ```
 
-### STEP 4.
+#### STEP 4.
 Run *terraform init* with upgrade option just to download the lastest neccesary providers:
 
 ```
@@ -86,23 +109,22 @@ Run *terraform init* with upgrade option just to download the lastest neccesary 
 Initializing the backend...
 
 Initializing provider plugins...
+- Finding latest version of hashicorp/template...
 - Finding latest version of hashicorp/oci...
+- Finding latest version of hashicorp/tls...
 - Finding latest version of hashicorp/local...
 - Finding latest version of hashicorp/null...
-- Finding latest version of hashicorp/template...
-- Installing hashicorp/template v2.2.0...
-- Installed hashicorp/template v2.2.0 (signed by HashiCorp)
-- Installing hashicorp/oci v4.19.0...
-- Installed hashicorp/oci v4.19.0 (signed by HashiCorp)
-- Installing hashicorp/local v2.1.0...
-- Installed hashicorp/local v2.1.0 (signed by HashiCorp)
-- Installing hashicorp/null v3.1.0...
-- Installed hashicorp/null v3.1.0 (signed by HashiCorp)
+- Using previously-installed hashicorp/template v2.2.0
+- Installing hashicorp/oci v4.32.0...
+- Installed hashicorp/oci v4.32.0 (signed by HashiCorp)
+- Installing hashicorp/tls v3.1.0...
+- Installed hashicorp/tls v3.1.0 (signed by HashiCorp)
+- Using previously-installed hashicorp/local v2.1.0
+- Using previously-installed hashicorp/null v3.1.0
 
-Terraform has created a lock file .terraform.lock.hcl to record the provider
-selections it made above. Include this file in your version control repository
-so that Terraform can guarantee to make the same selections by default when
-you run "terraform init" in the future.
+Terraform has made some changes to the provider dependency selections recorded
+in the .terraform.lock.hcl file. Review those changes and commit them to your
+version control system if they represent changes you intended to make.
 
 Terraform has been successfully initialized!
 
@@ -115,17 +137,13 @@ rerun this command to reinitialize your working directory. If you forget, other
 commands will detect it and remind you to do so if necessary.
 ```
 
-### STEP 5.
+#### STEP 5.
 Run *terraform apply* to provision the content of this repo (type **yes** to confirm the the apply phase):
 
 ```
 [opc@terraform-server terraform-oci-private-oke]$ terraform apply
 
-data.oci_containerengine_cluster_option.FoggyKitchenOKEClusterOption: Refreshing state...
-data.oci_containerengine_node_pool_option.FoggyKitchenOKEClusterNodePoolOption: Refreshing state...
-
-An execution plan has been generated and is shown below.
-Resource actions are indicated with the following symbols:
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
   + create
  <= read (data resources)
 
@@ -140,9 +158,56 @@ Terraform will perform the following actions:
       + token_version = "2.0.0"
     }
 
+  # data.oci_core_vnic.FoggyKitchenBastionServer_VNIC1 will be read during apply
+  # (config refers to values not yet known)
+ <= data "oci_core_vnic" "FoggyKitchenBastionServer_VNIC1"  {
+      + availability_domain    = (known after apply)
+      + compartment_id         = (known after apply)
+      + defined_tags           = (known after apply)
+      + display_name           = (known after apply)
+      + freeform_tags          = (known after apply)
+      + hostname_label         = (known after apply)
+      + id                     = (known after apply)
+    }
+
 (...)
 
-Plan: 10 to add, 0 to change, 0 to destroy.
+Plan: 20 to add, 0 to change, 0 to destroy.
+
+Changes to Outputs:
+  + FoggyKitchenBastionServer_PublicIP               = [
+      + (known after apply),
+    ]
+  + FoggyKitchenOKECluster                           = {
+      + endpoint_subnet     = (known after apply)
+      + endpoints           = (known after apply)
+      + id                  = (known after apply)
+      + kubernetes_version  = "v1.19.7"
+      + loadbalancer_subnet = (known after apply)
+      + name                = "FoggyKitchenOKECluster"
+    }
+  + FoggyKitchenOKENodePool                          = {
+      + id                 = (known after apply)
+      + kubernetes_version = "v1.19.7"
+      + name               = "FoggyKitchenOKENodePool"
+      + subnet_ids         = (known after apply)
+    }
+  + FoggyKitchen_Cluster_Kubernetes_Versions         = [
+      + [
+          + "v1.17.9",
+          + "v1.17.13",
+          + "v1.18.10",
+          + "v1.19.7",
+        ],
+    ]
+  + FoggyKitchen_Cluster_NodePool_Kubernetes_Version = [
+      + [
+          + "v1.17.9",
+          + "v1.17.13",
+          + "v1.18.10",
+          + "v1.19.7",
+        ],
+    ]
 
 Do you want to perform these actions?
   Terraform will perform the actions described above.
@@ -150,37 +215,61 @@ Do you want to perform these actions?
 
   Enter a value: yes
 
+
+tls_private_key.public_private_key_pair: Creating...
+tls_private_key.public_private_key_pair: Creation complete after 0s [id=ffd402e437a3164a86daefa4d96d28a0880942fb]
+data.template_file.key_script: Reading...
+data.template_file.key_script: Read complete after 0s [id=b8174d9ab24f0dbd1bdf002921272a9db24d665811c6362c6dff5d9d6f18254a]
 oci_identity_compartment.FoggyKitchenCompartment: Creating...
+data.template_cloudinit_config.cloud_init: Reading...
+data.template_cloudinit_config.cloud_init: Read complete after 0s [id=2845023931]
 oci_identity_compartment.FoggyKitchenCompartment: Creation complete after 1s [id=ocid1.compartment.oc1..aaaaaaaagillnk7ttj6wpdhmewpibpxc5gbmrfxdtmaa3gfgjzbudesm3tsq]
 oci_core_vcn.FoggyKitchenVCN: Creating...
 
 (...)
 
-local_file.FoggyKitchenKubeConfigFile: Creating...
-local_file.FoggyKitchenKubeConfigFile: Creation complete after 0s [id=75873c1ec199bf2e88ba41b687f4e8b63616f5ac]
-oci_containerengine_node_pool.FoggyKitchenOKENodePool: Creation complete after 7s [id=ocid1.nodepool.oc1.iad.aaaaaaaaaftdizbqgm2gkodggzsdmyjqgqytcolehazgcnlcgnzwcojzgbsd]
+null_resource.FoggyKitchenBastionServer_ConfigMgmt (remote-exec):   Certificate: false
+null_resource.FoggyKitchenBastionServer_ConfigMgmt (remote-exec):   SSH Agent: false
+null_resource.FoggyKitchenBastionServer_ConfigMgmt (remote-exec):   Checking Host Key: false
+null_resource.FoggyKitchenBastionServer_ConfigMgmt (remote-exec):   Target Platform: unix
+null_resource.FoggyKitchenBastionServer_ConfigMgmt (remote-exec): Connected!
+null_resource.FoggyKitchenBastionServer_ConfigMgmt: Still creating... [1m20s elapsed]
+null_resource.FoggyKitchenBastionServer_ConfigMgmt (remote-exec): == 3. Setup OCI CLI
+null_resource.FoggyKitchenBastionServer_ConfigMgmt: Creation complete after 1m20s [id=8755554414683818568]
 
-Apply complete! Resources: 18 added, 0 changed, 0 destroyed.
+Apply complete! Resources: 20 added, 0 changed, 0 destroyed.
 
 Outputs:
 
+FoggyKitchenBastionServer_PublicIP = [
+  "130.61.176.121",
+]
 FoggyKitchenOKECluster = {
-  "id" = "ocid1.cluster.oc1.iad.aaaaaaaawxgqsiqjmwb7m3scdk3awgj4xjc6p3mzkusqc6zivcbpcau3dxya"
+  "endpoint_subnet" = "ocid1.subnet.oc1.eu-frankfurt-1.aaaaaaaax5wu647ym2576gqosduwjowc3zxq5cvog345ylpvvvyptiqmev5a"
+  "endpoints" = tolist([
+    {
+      "kubernetes" = ""
+      "private_endpoint" = "10.0.2.130:6443"
+      "public_endpoint" = ""
+    },
+  ])
+  "id" = "ocid1.cluster.oc1.eu-frankfurt-1.aaaaaaaacnjlnhud7gf2a434cw4cw3sknygvrbisywmfbgkpxcipn5bhdsga"
   "kubernetes_version" = "v1.19.7"
+  "loadbalancer_subnet" = tolist([
+    "ocid1.subnet.oc1.eu-frankfurt-1.aaaaaaaawcyw2lhbkkznwqydbwqbnxjdi3oq657jo6dprpk3v7i7xgnmgp7a",
+  ])
   "name" = "FoggyKitchenOKECluster"
 }
 FoggyKitchenOKENodePool = {
-  "id" = "ocid1.nodepool.oc1.iad.aaaaaaaaaftdizbqgm2gkodggzsdmyjqgqytcolehazgcnlcgnzwcojzgbsd"
+  "id" = "ocid1.nodepool.oc1.eu-frankfurt-1.aaaaaaaa2tuw336vo3pla2rbfwbtjxhq2jnjcb64yo3h7hwf4n2vh6s5w2wa"
   "kubernetes_version" = "v1.19.7"
   "name" = "FoggyKitchenOKENodePool"
   "subnet_ids" = toset([
-    "ocid1.subnet.oc1.iad.aaaaaaaa2sy3vwoxfhvv4dgyamo36ofzz6yah37xoakbffk4pldzzre3eoma",
+    "ocid1.subnet.oc1.eu-frankfurt-1.aaaaaaaaf4oiew2lkbv7fufb2wb7fgi4o5inhcr7mzhgdv4ktaznaswaeu5a",
   ])
 }
 FoggyKitchen_Cluster_Kubernetes_Versions = [
   tolist([
-    "v1.16.8",
-    "v1.16.15",
     "v1.17.9",
     "v1.17.13",
     "v1.18.10",
@@ -189,8 +278,6 @@ FoggyKitchen_Cluster_Kubernetes_Versions = [
 ]
 FoggyKitchen_Cluster_NodePool_Kubernetes_Version = [
   tolist([
-    "v1.16.8",
-    "v1.16.15",
     "v1.17.9",
     "v1.17.13",
     "v1.18.10",
@@ -199,7 +286,7 @@ FoggyKitchen_Cluster_NodePool_Kubernetes_Version = [
 ]
 ```
 
-### STEP 6.
+#### STEP 6.
 After testing the environment you can remove the OCI OKE infra. You should just run *terraform destroy* (type **yes** for confirmation of the destroy phase):
 
 ```
@@ -208,33 +295,35 @@ After testing the environment you can remove the OCI OKE infra. You should just 
 data.oci_containerengine_node_pool_option.FoggyKitchenOKEClusterNodePoolOption: Refreshing state...
 (…)
 
-An execution plan has been generated and is shown below.
-Resource actions are indicated with the following symbols:
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
   - destroy
 
 Terraform will perform the following actions:
 
   # local_file.FoggyKitchenKubeConfigFile will be destroyed
   - resource "local_file" "FoggyKitchenKubeConfigFile" {
-      - content              = <<~EOT
-            apiVersion: v1
-            clusters:
-            - cluster:
-(…)
-  # oci_identity_compartment.FoggyKitchenCompartment will be destroyed
-  - resource "oci_identity_compartment" "FoggyKitchenCompartment" {
-      - compartment_id = "ocid1.tenancy.oc1..aaaaaaaasbktycknc4n4ja673cmnldkrj2s3gdbz7d2heqzzxn7pe64ksbia" -> null
-      - defined_tags   = {} -> null
-      - description    = "FoggyKitchen Compartment" -> null
-      - freeform_tags  = {} -> null
-      - id             = "ocid1.compartment.oc1..aaaaaaaagillnk7ttj6wpdhmewpibpxc5gbmrfxdtmaa3gfgjzbudesm3tsq" -> null
-      - is_accessible  = true -> null
-      - name           = "FoggyKitchenCompartment" -> null
-      - state          = "ACTIVE" -> null
-      - time_created   = "2019-12-02 19:22:17.767 +0000 UTC" -> null
-    }
 
-Plan: 0 to add, 0 to change, 18 to destroy.
+(…)
+    } -> null
+  - FoggyKitchen_Cluster_Kubernetes_Versions         = [
+      - [
+          - "v1.17.9",
+          - "v1.17.13",
+          - "v1.18.10",
+          - "v1.19.7",
+        ],
+    ] -> null
+  - FoggyKitchen_Cluster_NodePool_Kubernetes_Version = [
+      - [
+          - "v1.17.9",
+          - "v1.17.13",
+          - "v1.18.10",
+          - "v1.19.7",
+        ],
+    ] -> null
+
+
+Plan: 0 to add, 0 to change, 20 to destroy.
 
 Do you really want to destroy all resources?
   Terraform will destroy all your managed infrastructure, as shown above.
@@ -249,5 +338,5 @@ oci_core_vcn.FoggyKitchenVCN: Destruction complete after 1s
 oci_identity_compartment.FoggyKitchenCompartment: Destroying... [id=ocid1.compartment.oc1..aaaaaaaagillnk7ttj6wpdhmewpibpxc5gbmrfxdtmaa3gfgjzbudesm3tsq]
 oci_identity_compartment.FoggyKitchenCompartment: Destruction complete after 0s
 
-Destroy complete! Resources: 18 destroyed.
+Destroy complete! Resources: 20 destroyed.
 ```

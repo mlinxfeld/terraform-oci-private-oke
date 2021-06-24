@@ -1,6 +1,6 @@
 data "template_file" "ocicli_config" {
   template = file("templates/ocicli_config")
-  
+
   vars = {
     user_ocid    = var.user_ocid
     fingerprint  = var.fingerprint
@@ -17,7 +17,7 @@ resource "null_resource" "FoggyKitchenBastionServer_ConfigMgmt" {
       type        = "ssh"
       user        = "opc"
       host        = data.oci_core_vnic.FoggyKitchenBastionServer_VNIC1.public_ip_address
-      private_key = file(var.private_key_oci)
+      private_key = tls_private_key.public_private_key_pair.private_key_pem
       script_path = "/home/opc/myssh.sh"
       agent       = false
       timeout     = "10m"
@@ -31,7 +31,7 @@ resource "null_resource" "FoggyKitchenBastionServer_ConfigMgmt" {
       "sudo -u root yum install -y python36-oci-cli",
       "rm -rf /home/opc/.oci",
       "mkdir /home/opc/.oci/",
-      ]
+    ]
   }
 
   provisioner "file" {
@@ -39,13 +39,13 @@ resource "null_resource" "FoggyKitchenBastionServer_ConfigMgmt" {
       type        = "ssh"
       user        = "opc"
       host        = data.oci_core_vnic.FoggyKitchenBastionServer_VNIC1.public_ip_address
-      private_key = file(var.private_key_oci)
+      private_key = tls_private_key.public_private_key_pair.private_key_pem
       script_path = "/home/opc/myssh.sh"
       agent       = false
       timeout     = "10m"
     }
 
-    content     = file(var.private_key_path)
+    content     = tls_private_key.public_private_key_pair.private_key_pem
     destination = "/home/opc/.oci/oci_api_key.pem"
   }
 
@@ -54,7 +54,7 @@ resource "null_resource" "FoggyKitchenBastionServer_ConfigMgmt" {
       type        = "ssh"
       user        = "opc"
       host        = data.oci_core_vnic.FoggyKitchenBastionServer_VNIC1.public_ip_address
-      private_key = file(var.private_key_oci)
+      private_key = tls_private_key.public_private_key_pair.private_key_pem
       script_path = "/home/opc/myssh.sh"
       agent       = false
       timeout     = "10m"
@@ -63,19 +63,19 @@ resource "null_resource" "FoggyKitchenBastionServer_ConfigMgmt" {
     content     = data.template_file.ocicli_config.rendered
     destination = "/home/opc/.oci/config"
   }
-  
+
   provisioner "remote-exec" {
     connection {
       type        = "ssh"
       user        = "opc"
       host        = data.oci_core_vnic.FoggyKitchenBastionServer_VNIC1.public_ip_address
-      private_key = file(var.private_key_oci)
+      private_key = tls_private_key.public_private_key_pair.private_key_pem
       script_path = "/home/opc/myssh.sh"
       agent       = false
       timeout     = "10m"
     }
     inline = ["echo '== 3. Setup OCI CLI'",
-    "chmod 600 /home/opc/.oci/oci_api_key.pem"
+      "chmod 600 /home/opc/.oci/oci_api_key.pem"
     ]
   }
 }
