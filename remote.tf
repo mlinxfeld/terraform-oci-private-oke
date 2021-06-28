@@ -1,4 +1,4 @@
-data "template_file" "ocicli_config" {
+/*data "template_file" "ocicli_config" {
   template = file("templates/ocicli_config")
 
   vars = {
@@ -79,3 +79,4 @@ resource "null_resource" "FoggyKitchenBastionServer_ConfigMgmt" {
     ]
   }
 }
+*/
